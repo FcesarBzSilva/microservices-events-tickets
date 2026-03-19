@@ -28,4 +28,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleEventSoldTicketException(EventSoldTicketsException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(feign.FeignException.class)
+    public ResponseEntity<String> handleFeignException(feign.FeignException ex) {
+        return new ResponseEntity<>("Error communicating with Ticket Service: " + ex.getMessage(), HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleGenericException(Exception ex) {
+        return new ResponseEntity<>("Unexpected internal error: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
