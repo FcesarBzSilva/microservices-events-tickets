@@ -1,28 +1,30 @@
-# Event Manager Microservice
+# 📅 Event Manager Microservice
 
-Este é um micro serviço Spring Boot para gerenciar eventos.
+Microserviço responsável por gerenciar toda a lógica de eventos na plataforma.
 
-## Funcionalidades
+## ✨ Funcionalidades
 
-- Criação de eventos
-- Recuperação de eventos por ID
-- Listagem de todos os eventos
-- Listagem de todos os eventos ordenados por nome
-- Exclusão de eventos (somente se não houver tickets vendidos)
-- Atualização de eventos
+- **Criação de Eventos**: Recebe os dados de um evento (nome, data, etc) e se integra remotamente à **API ViaCep** para debulhar e armazenar o endereço completo (Logradouro, Bairro, UF, etc) a partir de um único `cep`.
+- **Listagem e Busca**: Retorna detalhes de eventos específicos pelo `id` ou traz todos ordenados.
+- **Atualização**: Atualiza informações do evento no banco de dados.
+- **Exclusão com Restrições (Fail-Fast)**: Deleta eventos da base, mas bloqueia e lança exceção (HTTP 409) validando de forma síncrona, via `FeignClient` no `ms-ticket-manager`, se ingressos já formam emitidos para aquele id.
 
-## Tecnologias Utilizadas
+## 🛠️ Tecnologias Principais
 
-- Java
-- Spring Boot
-- Spring Data MongoDB
-- JSON Processing (Jackson)
-- Feign Client para comunicação com serviços externos
-- ViaCep para obtenção de endereço baseado no CEP
+- **Linguagem / Framework**: Java 17 + Spring Boot 3
+- **Persistência**: Spring Data MongoDB (`eventosdb`) em `PORT 27017` Localhost/Docker.
+- **Cliente HTTP**: Spring Cloud OpenFeign para comunicação entre microserviços e chamadas à APIs externas (ViaCep).
+- **Tratamento de Exceções**: `@ControllerAdvice` mapeado de forma global inclusive para falhas em circuitos do FeignClient.
 
-## Como Executar
+## 🚀 Uso das API
 
-1. Clone o repositório:
-   ```sh
-   git clone https://github.com/FcesarBzSilva/PbDes03_FernandoCesarBezerraSilva.git
-   cd PbDes03_FernandoCesarBezerraSilva
+O serviço roda na porta `8080` (HTTP). O mapeamento das URIs no `EventController` possui:
+
+| Método | Endpoint | Objetivo |
+|--------|------|-----------|
+| `POST` | `/events/create-event` | Adicionar Evento (Requer os campos `eventName`, `dateTime` e `cep`) |
+| `GET` | `/events/get-event/{id}` | Exibir Evento via ID do Mongo |
+| `GET` | `/events/pegar-todos-eventos` | Listar todos em JSON |
+| `GET` | `/events/get-all-events/sorted`| Listar todos ordeandos pelo nome do evento. |
+| `PUT` | `/events/update-event/{id}` | Edição do Evento |
+| `DELETE`| `/events/delete-event/{id}` | Exclusão (Se sem ingressos atrelados) |

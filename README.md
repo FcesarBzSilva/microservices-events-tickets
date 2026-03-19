@@ -1,30 +1,55 @@
-# 🎟️ Microsservices – Events & Tickets
+# Microservices Events & Tickets 🎟️
 
-Este repositório foi criado como desafio técnico durante meu estágio. Ele reúne dois microsserviços desenvolvidos em Java com Spring Boot, que foram deployados na AWS e acessíveis inclusive via celular. Foi uma experiência incrível!
+> **Este repositório foi criado como desafio técnico durante meu estágio.** Ele reúne dois microsserviços desenvolvidos em Java com Spring Boot, que foram deployados na AWS e acessíveis inclusive via celular. Foi uma experiência incrível! 🚀
 
-## 📂 Estrutura do Repositório
+Um projeto didático de backend modular e escalável. A arquitetura é dividida em dois microserviços independentes que se comunicam via Feign Client e RabbitMQ, utilizando MongoDB como banco de dados NoSQL.
 
-- `mseventmanager/` – microsserviço responsável pela gestão de **eventos**.
-- `msticketmanager/` – microsserviço que gerencia **tickets** associados a esses eventos.
+## 🏗️ Estrutura do Projeto
 
-> Cada pasta contém um README específico com detalhes sobre tecnologia, execução local, endpoints, testes e integrações (Feign Client, RabbitMQ, MongoDB etc.).
+O sistema é comporto por dois microserviços principais:
+- **[ms-event-manager](./ms-event-manager/Readme.md)** (Porta 8080): Gerencia o cadastro, listagem, atualização e exclusão de eventos. Integra-se com a API ViaCep para consultar o endereço e com o ticket-manager para validações antes de exclusões.
+- **[ms-ticket-manager](./ms-ticket-manager/Readme.md)** (Porta 8081): Responsável pelas operações de venda (criação), atualização e cancelamento lógico de ingressos associados aos eventos. Interage com o event-manager para validar a existência do evento e com RabbitMQ para publicações de mensageria assíncrona.
 
-## ☁️ Deploy na AWS
+*As documentações detalhadas de cada serviço, com seus atributos e bibliotecas, estão nos Readmes dentro de suas respectivas pastas.*
 
-- Aplicações deployadas em instâncias EC2.
-- Configurações de filas (RabbitMQ) e banco de dados (MongoDB) adequadas para produção.
-- Acesso remoto via celular, mostrando que a solução está totalmente funcional em ambiente real.
+## 🚀 Como Executar o Projeto Localmente via Docker
 
-## 🚀 Como Executar Localmente
+A maneira mais fácil de rodar ambos os serviços e todas as suas dependências (MongoDB e RabbitMQ) de forma orquestrada é utilizando o Docker Compose fornecido na raiz do projeto.
 
-1. Clone este repositório:
-   ```bash
-   git clone https://github.com/FcesarBzSilva/microservices-events-tickets.git
+### 1. Pré-Requisitos
+- Docker e Docker Compose instalados.
+- Java 17 e Maven (para recompilar os projetos antes de gerar a imagem Docker).
+
+### 2. Passos para a Execução
+
+1. **Faça o clone do repositório**:
+   ```sh
+   git clone <url-do-seu-repositorio>
+   cd microservices-events-tickets
    ```
-2. Acesse uma das pastas:
-   - `cd mseventmanager` ou `cd msticketmanager`
-3. Siga o README específico para configurar seu ambiente (MongoDB, RabbitMQ, variáveis de ambiente etc.) e executar os microsserviços.
 
----
+2. **Gere os arquivos .jar executáveis**:
+   Antes de subir o Docker, é preciso compilar ambos os projetos.
+   ```sh
+   cd ms-event-manager
+   mvn clean package -DskipTests
+   cd ..
+   
+   cd ms-ticket-manager
+   mvn clean package -DskipTests
+   cd ..
+   ```
 
-Desenvolvido por **Fernando Cesar Bezerra Silva** com foco em arquitetura de microsserviços, integração via mensageria e deploy em nuvem. Foi um desafio divertido e enriquecedor! 😊
+3. **Suba o ambiente completo**:
+   Na raiz do projeto (onde está o `docker-compose.yml`), execute:
+   ```sh
+   docker compose up -d --build
+   ```
+
+### 3. Acessando a Aplicação
+- A API de eventos poderá ser acessada em: `http://localhost:8080/events/...`
+- A API de ingressos poderá ser acessada em: `http://localhost:8081/tickets/...`
+- A base de dados principal usa o MongoDB na porta padrão local (`27017`).
+- O painel administrativo do RabbitMQ responde acessando `http://localhost:15672` (login/senha: `guest`).
+
+> **Nota:** Por ser um projeto de caráter estritamente didático, os arquivos `application.properties` (e senhas locais) foram mantidos com fins facilitadores e de histórico, não sendo voltados para ambientes reais de produção sem as devidas abstrações de segurança.
